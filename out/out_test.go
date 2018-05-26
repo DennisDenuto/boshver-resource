@@ -14,7 +14,7 @@ import (
 	"github.com/aws/aws-sdk-go/aws/credentials"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/s3"
-	"github.com/concourse/semver-resource/models"
+	"github.com/DennisDenuto/boshver-resource/models"
 	"github.com/nu7hatch/gouuid"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
@@ -136,28 +136,26 @@ var _ = Describe("Out", func() {
 
 			Context("when a valid version is in the file", func() {
 				BeforeEach(func() {
-					err := ioutil.WriteFile(filepath.Join(source, "number"), []byte("1.2.3"), 0644)
+					err := ioutil.WriteFile(filepath.Join(source, "number"), []byte("1.2"), 0644)
 					Expect(err).NotTo(HaveOccurred())
 				})
 
 				It("reports the version as the resource's version", func() {
-					Expect(response.Version.Number).To(Equal("1.2.3"))
+					Expect(response.Version.Number).To(Equal("1.2"))
 				})
 
 				It("saves the contents of the file in the configured bucket", func() {
-					Expect(getVersion()).To(Equal("1.2.3"))
+					Expect(getVersion()).To(Equal("1.2"))
 				})
 			})
 		})
 
 		Context("when bumping the version", func() {
 			BeforeEach(func() {
-				putVersion("1.2.3")
+				putVersion("1.2")
 			})
 
 			for bump, result := range map[string]string{
-				"final": "1.2.3",
-				"patch": "1.2.4",
 				"minor": "1.3.0",
 				"major": "2.0.0",
 			} {
@@ -180,94 +178,5 @@ var _ = Describe("Out", func() {
 			}
 		})
 
-		Context("when bumping the version to a prerelease", func() {
-			BeforeEach(func() {
-				request.Params.Pre = "alpha"
-			})
-
-			Context("when the version is not a prerelease", func() {
-				BeforeEach(func() {
-					putVersion("1.2.3")
-				})
-
-				It("reports the bumped version as the version", func() {
-					Expect(response.Version.Number).To(Equal("1.2.3-alpha.1"))
-				})
-
-				It("saves the contents of the file in the configured bucket", func() {
-					Expect(getVersion()).To(Equal("1.2.3-alpha.1"))
-				})
-
-				Context("when doing a semantic bump at the same time", func() {
-					BeforeEach(func() {
-						request.Params.Bump = "minor"
-					})
-
-					It("reports the bumped version as the version", func() {
-						Expect(response.Version.Number).To(Equal("1.3.0-alpha.1"))
-					})
-
-					It("saves the contents of the file in the configured bucket", func() {
-						Expect(getVersion()).To(Equal("1.3.0-alpha.1"))
-					})
-				})
-			})
-
-			Context("when the version is the same prerelease", func() {
-				BeforeEach(func() {
-					putVersion("1.2.3-alpha.2")
-				})
-
-				It("reports the bumped version as the version", func() {
-					Expect(response.Version.Number).To(Equal("1.2.3-alpha.3"))
-				})
-
-				It("saves the contents of the file in the configured bucket", func() {
-					Expect(getVersion()).To(Equal("1.2.3-alpha.3"))
-				})
-
-				Context("when doing a semantic bump at the same time", func() {
-					BeforeEach(func() {
-						request.Params.Bump = "minor"
-					})
-
-					It("reports the bumped version as the version", func() {
-						Expect(response.Version.Number).To(Equal("1.3.0-alpha.1"))
-					})
-
-					It("saves the contents of the file in the configured bucket", func() {
-						Expect(getVersion()).To(Equal("1.3.0-alpha.1"))
-					})
-				})
-			})
-
-			Context("when the version is a different prerelease", func() {
-				BeforeEach(func() {
-					putVersion("1.2.3-beta.2")
-				})
-
-				It("reports the bumped version as the version", func() {
-					Expect(response.Version.Number).To(Equal("1.2.3-alpha.1"))
-				})
-
-				It("saves the contents of the file in the configured bucket", func() {
-					Expect(getVersion()).To(Equal("1.2.3-alpha.1"))
-				})
-
-				Context("when doing a semantic bump at the same time", func() {
-					BeforeEach(func() {
-						request.Params.Bump = "minor"
-					})
-
-					It("reports the bumped version as the version", func() {
-						Expect(response.Version.Number).To(Equal("1.3.0-alpha.1"))
-					})
-
-					It("saves the contents of the file in the configured bucket", func() {
-						Expect(getVersion()).To(Equal("1.3.0-alpha.1"))
-					})
-				})
-			})
-		})
 	})
 })

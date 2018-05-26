@@ -13,7 +13,7 @@ import (
 	"github.com/aws/aws-sdk-go/aws/credentials"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/s3"
-	"github.com/concourse/semver-resource/models"
+	"github.com/DennisDenuto/boshver-resource/models"
 	"github.com/nu7hatch/gouuid"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
@@ -122,24 +122,24 @@ var _ = Describe("Check", func() {
 
 			Context("when a version is present in the source", func() {
 				BeforeEach(func() {
-					putVersion("1.2.3")
+					putVersion("1.2")
 				})
 
 				It("returns the version present at the source", func() {
 					Expect(response).To(HaveLen(1))
-					Expect(response[0].Number).To(Equal("1.2.3"))
+					Expect(response[0].Number).To(Equal("1.2"))
 				})
 			})
 
 			Context("when no version is present at the source", func() {
 				Context("and an initial version is set", func() {
 					BeforeEach(func() {
-						request.Source.InitialVersion = "10.9.8"
+						request.Source.InitialVersion = "10.9"
 					})
 
 					It("returns the initial version", func() {
 						Expect(response).To(HaveLen(1))
-						Expect(response[0].Number).To(Equal("10.9.8"))
+						Expect(response[0].Number).To(Equal("10.9"))
 					})
 				})
 
@@ -148,9 +148,9 @@ var _ = Describe("Check", func() {
 						request.Source.InitialVersion = ""
 					})
 
-					It("returns the initial version as 0.0.0", func() {
+					It("returns the initial version as 0.0", func() {
 						Expect(response).To(HaveLen(1))
-						Expect(response[0].Number).To(Equal("0.0.0"))
+						Expect(response[0].Number).To(Equal("0.0"))
 					})
 				})
 			})
@@ -158,7 +158,7 @@ var _ = Describe("Check", func() {
 
 		Context("with a version present", func() {
 			BeforeEach(func() {
-				request.Version.Number = "1.2.3"
+				request.Version.Number = "1.2"
 			})
 
 			Context("when there is no current version", func() {
@@ -169,23 +169,23 @@ var _ = Describe("Check", func() {
 
 			Context("when the source has a higher version", func() {
 				BeforeEach(func() {
-					putVersion("1.2.4")
+					putVersion("1.2")
 				})
 
 				It("returns the version present at the source", func() {
 					Expect(response).To(HaveLen(1))
-					Expect(response[0].Number).To(Equal("1.2.4"))
+					Expect(response[0].Number).To(Equal("1.2"))
 				})
 			})
 
 			Context("when it's the same as the current version", func() {
 				BeforeEach(func() {
-					putVersion("1.2.3")
+					putVersion("1.2")
 				})
 
 				It("returns the version present at the source", func() {
 					Expect(response).To(HaveLen(1))
-					Expect(response[0].Number).To(Equal("1.2.3"))
+					Expect(response[0].Number).To(Equal("1.2"))
 				})
 			})
 		})

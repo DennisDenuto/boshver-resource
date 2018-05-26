@@ -1,6 +1,6 @@
 package version
 
-func BumpFromParams(bumpStr string, preStr string) Bump {
+func BumpFromParams(bumpStr string) Bump {
 	var semverBump Bump
 
 	switch bumpStr {
@@ -8,19 +8,11 @@ func BumpFromParams(bumpStr string, preStr string) Bump {
 		semverBump = MajorBump{}
 	case "minor":
 		semverBump = MinorBump{}
-	case "patch":
-		semverBump = PatchBump{}
-	case "final":
-		semverBump = FinalBump{}
 	}
 
 	var bump MultiBump
 	if semverBump != nil {
 		bump = append(bump, semverBump)
-	}
-
-	if preStr != "" {
-		bump = append(bump, PreBump{preStr})
 	}
 
 	return bump

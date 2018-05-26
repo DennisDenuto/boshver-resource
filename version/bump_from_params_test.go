@@ -4,7 +4,7 @@ import (
 	"fmt"
 
 	"github.com/blang/semver"
-	. "github.com/concourse/semver-resource/version"
+	. "github.com/DennisDenuto/boshver-resource/version"
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
@@ -30,7 +30,7 @@ var _ = Describe("BumpForParams", func() {
 	})
 
 	JustBeforeEach(func() {
-		version = BumpFromParams(bumpParam, preParam).Apply(version)
+		version = BumpFromParams(bumpParam).Apply(version)
 	})
 
 	for bump, result := range map[string]string{

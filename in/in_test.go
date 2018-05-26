@@ -13,7 +13,7 @@ import (
 	"github.com/aws/aws-sdk-go/aws/credentials"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/s3"
-	"github.com/concourse/semver-resource/models"
+	"github.com/DennisDenuto/boshver-resource/models"
 	"github.com/nu7hatch/gouuid"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
@@ -67,7 +67,7 @@ var _ = Describe("In", func() {
 
 			request = models.InRequest{
 				Version: models.Version{
-					Number: "1.2.3",
+					Number: "1.2",
 				},
 				Source: models.Source{
 					Bucket:          bucketName,
@@ -109,11 +109,10 @@ var _ = Describe("In", func() {
 		})
 
 		for bump, result := range map[string]string{
-			"":      "1.2.3",
-			"final": "1.2.3",
-			"patch": "1.2.4",
-			"minor": "1.3.0",
-			"major": "2.0.0",
+			"":      "1.2",
+			"final": "1.2",
+			"minor": "1.3",
+			"major": "2.0",
 		} {
 			bumpLocal := bump
 			resultLocal := result

@@ -6,8 +6,8 @@ import (
 	"os"
 
 	"github.com/blang/semver"
-	"github.com/concourse/semver-resource/driver"
-	"github.com/concourse/semver-resource/models"
+	"github.com/DennisDenuto/boshver-resource/driver"
+	"github.com/DennisDenuto/boshver-resource/models"
 )
 
 func main() {

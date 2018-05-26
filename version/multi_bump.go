@@ -1,10 +1,8 @@
 package version
 
-import "github.com/blang/semver"
-
 type MultiBump []Bump
 
-func (bumps MultiBump) Apply(v semver.Version) semver.Version {
+func (bumps MultiBump) Apply(v BoshVersion) BoshVersion {
 	for _, bump := range bumps {
 		v = bump.Apply(v)
 	}

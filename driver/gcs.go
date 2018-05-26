@@ -10,7 +10,7 @@ import (
 
 	"cloud.google.com/go/storage"
 	"github.com/blang/semver"
-	"github.com/concourse/semver-resource/version"
+	"github.com/DennisDenuto/boshver-resource/version"
 	"google.golang.org/api/option"
 )
 

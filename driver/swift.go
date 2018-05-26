@@ -5,8 +5,8 @@ import (
 	"strings"
 
 	"github.com/blang/semver"
-	"github.com/concourse/semver-resource/models"
-	"github.com/concourse/semver-resource/version"
+	"github.com/DennisDenuto/boshver-resource/models"
+	"github.com/DennisDenuto/boshver-resource/version"
 	"github.com/rackspace/gophercloud"
 	"github.com/rackspace/gophercloud/openstack"
 	"github.com/rackspace/gophercloud/openstack/objectstorage/v1/containers"

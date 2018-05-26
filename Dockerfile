@@ -1,10 +1,10 @@
 FROM golang:alpine as builder
-COPY . /go/src/github.com/concourse/semver-resource
+COPY . /go/src/github.com/DennisDenuto/boshver-resource
 ENV CGO_ENABLED 0
-RUN go build -o /assets/in github.com/concourse/semver-resource/in
-RUN go build -o /assets/out github.com/concourse/semver-resource/out
-RUN go build -o /assets/check github.com/concourse/semver-resource/check
-WORKDIR /go/src/github.com/concourse/semver-resource
+RUN go build -o /assets/in github.com/DennisDenuto/boshver-resource/in
+RUN go build -o /assets/out github.com/DennisDenuto/boshver-resource/out
+RUN go build -o /assets/check github.com/DennisDenuto/boshver-resource/check
+WORKDIR /go/src/github.com/DennisDenuto/boshver-resource
 RUN set -e; for pkg in $(go list ./...); do \
 		go test -o "/tests/$(basename $pkg).test" -c $pkg; \
 	done

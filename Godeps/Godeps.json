@@ -1,5 +1,5 @@
 {
-	"ImportPath": "github.com/concourse/semver-resource",
+	"ImportPath": "github.com/DennisDenuto/boshver-resource",
 	"GoVersion": "go1.6",
 	"GodepVersion": "v79",
 	"Packages": [
