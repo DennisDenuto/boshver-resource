@@ -10,7 +10,6 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/blang/semver"
 	"github.com/DennisDenuto/boshver-resource/version"
 )
 
@@ -51,7 +50,7 @@ func (driver *GitDriver) Bump(bump version.Bump) (version.BoshVersion, error) {
 		return version.BoshVersion{}, err
 	}
 
-	var newVersion semver.Version
+	var newVersion version.BoshVersion
 
 	for {
 		err = driver.setUpRepo()
@@ -79,7 +78,7 @@ func (driver *GitDriver) Bump(bump version.Bump) (version.BoshVersion, error) {
 	return newVersion, nil
 }
 
-func (driver *GitDriver) Set(newVersion semver.Version) error {
+func (driver *GitDriver) Set(newVersion version.BoshVersion) error {
 	err := driver.setUpAuth()
 	if err != nil {
 		return err
@@ -109,7 +108,7 @@ func (driver *GitDriver) Set(newVersion semver.Version) error {
 	return nil
 }
 
-func (driver *GitDriver) Check(cursor *semver.Version) ([]semver.Version, error) {
+func (driver *GitDriver) Check(cursor *version.BoshVersion) ([]version.BoshVersion, error) {
 	err := driver.setUpAuth()
 	if err != nil {
 		return nil, err
@@ -126,11 +125,11 @@ func (driver *GitDriver) Check(cursor *semver.Version) ([]semver.Version, error)
 	}
 
 	if !exists {
-		return []semver.Version{driver.InitialVersion}, nil
+		return []version.BoshVersion{driver.InitialVersion}, nil
 	}
 
-	if cursor == nil || currentVersion.GTE(*cursor) {
-		return []semver.Version{currentVersion}, nil
+	if cursor == nil || currentVersion.Compare(*cursor) >= 0 {
+		return []version.BoshVersion{currentVersion}, nil
 	}
 
 	return []version.BoshVersion{}, nil
@@ -296,7 +295,7 @@ const falsePushString = "Everything up-to-date"
 const pushRejectedString = "[rejected]"
 const pushRemoteRejectedString = "[remote rejected]"
 
-func (driver *GitDriver) writeVersion(newVersion semver.Version) (bool, error) {
+func (driver *GitDriver) writeVersion(newVersion version.BoshVersion) (bool, error) {
 	err := ioutil.WriteFile(filepath.Join(gitRepoDir, driver.File), []byte(newVersion.String()+"\n"), 0644)
 	if err != nil {
 		return false, err

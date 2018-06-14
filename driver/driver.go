@@ -9,30 +9,29 @@ import (
 	"github.com/aws/aws-sdk-go/aws/credentials"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/s3"
-	"github.com/blang/semver"
 	"github.com/DennisDenuto/boshver-resource/models"
 	"github.com/DennisDenuto/boshver-resource/version"
 )
 
 type Driver interface {
-	Bump(version.Bump) (semver.Version, error)
-	Set(semver.Version) error
-	Check(*semver.Version) ([]semver.Version, error)
+	Bump(version.Bump) (version.BoshVersion, error)
+	Set(version.BoshVersion) error
+	Check(*version.BoshVersion) ([]version.BoshVersion, error)
 }
 
 const maxRetries = 12
 
 func FromSource(source models.Source) (Driver, error) {
-	var initialVersion semver.Version
+	var initialVersion version.BoshVersion
 	if source.InitialVersion != "" {
-		version, err := semver.Parse(source.InitialVersion)
+		version, err := version.Parse(source.InitialVersion)
 		if err != nil {
 			return nil, fmt.Errorf("invalid initial version (%s): %s", source.InitialVersion, err)
 		}
 
 		initialVersion = version
 	} else {
-		initialVersion = semver.Version{Major: 0, Minor: 0, Patch: 0}
+		initialVersion = version.BoshVersion{Major: 0, Minor: 0}
 	}
 
 	switch source.Driver {

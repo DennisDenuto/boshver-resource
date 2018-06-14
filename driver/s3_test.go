@@ -2,10 +2,10 @@ package driver_test
 
 import (
 	"github.com/aws/aws-sdk-go/service/s3"
-	"github.com/blang/semver"
 	"github.com/DennisDenuto/boshver-resource/driver"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
+	"github.com/DennisDenuto/boshver-resource/version"
 )
 
 var _ = Describe("S3 Driver", func() {
@@ -16,7 +16,7 @@ var _ = Describe("S3 Driver", func() {
 				Svc:                  s,
 				ServerSideEncryption: "my-encryption-schema",
 			}
-			d.Set(semver.Version{})
+			d.Set(version.BoshVersion{})
 			Expect(*s.params.ServerSideEncryption).To(Equal("my-encryption-schema"))
 		})
 		It("leaves it empty when disabled", func() {
@@ -24,7 +24,7 @@ var _ = Describe("S3 Driver", func() {
 			d := driver.S3Driver{
 				Svc: s,
 			}
-			d.Set(semver.Version{})
+			d.Set(version.BoshVersion{})
 			Expect(s.params.ServerSideEncryption).To(BeNil())
 		})
 	})

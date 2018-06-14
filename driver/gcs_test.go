@@ -6,7 +6,6 @@ import (
 	"strings"
 
 	"cloud.google.com/go/storage"
-	"github.com/blang/semver"
 	. "github.com/DennisDenuto/boshver-resource/driver"
 	"github.com/DennisDenuto/boshver-resource/version"
 
@@ -19,7 +18,7 @@ var _ = Describe("GCS Driver", func() {
 	var (
 		buf    *gbytes.Buffer
 		s      *FakeIOServicer
-		v      semver.Version
+		v      version.BoshVersion
 		driver *GCSDriver
 	)
 
@@ -36,51 +35,35 @@ var _ = Describe("GCS Driver", func() {
 			Key:        "fake-object",
 		}
 
-		v = semver.Version{
+		v = version.BoshVersion{
 			Major: 1,
 			Minor: 2,
-			Patch: 3,
 		}
 	})
 
 	Describe("Bump", func() {
-		Describe("when the Object exists", func() {
-			It("writes the bumped version of the contents back to the object", func() {
-				s.Body = "2.6.3"
-
-				newV, err := driver.Bump(version.PatchBump{})
-
-				Expect(err).NotTo(HaveOccurred())
-				Expect(newV.String()).To(Equal("2.6.4"))
-
-				Expect(s.BucketName).To(Equal("fake-bucket"))
-				Expect(s.ObjectName).To(Equal("fake-object"))
-				Expect(s.Buf).To(gbytes.Say("2.6.4"))
-			})
-		})
 
 		Describe("when the object does not exist", func() {
 			It("bumps the initial version", func() {
 				s.GetError = storage.ErrObjectNotExist
-				driver.InitialVersion = semver.Version{
+				driver.InitialVersion = version.BoshVersion{
 					Major: 0,
 					Minor: 0,
-					Patch: 0,
 				}
 
-				newV, err := driver.Bump(version.PatchBump{})
+				newV, err := driver.Bump(version.MinorBump{})
 
 				Expect(err).NotTo(HaveOccurred())
-				Expect(newV.String()).To(Equal("0.0.1"))
+				Expect(newV.String()).To(Equal("0.1"))
 				Expect(s.BucketName).To(Equal("fake-bucket"))
 				Expect(s.ObjectName).To(Equal("fake-object"))
-				Expect(s.Buf).To(gbytes.Say("0.0.1"))
+				Expect(s.Buf).To(gbytes.Say("0.1"))
 			})
 		})
 	})
 
 	Describe("Set", func() {
-		It("puts the semver version to the object", func() {
+		It("puts the bosh version to the object", func() {
 			driver.Set(v)
 
 			Expect(s.BucketName).To(Equal("fake-bucket"))
@@ -92,11 +75,11 @@ var _ = Describe("GCS Driver", func() {
 	})
 
 	Describe("Check", func() {
-		Describe("when the object contains a semver version greater than the cursor", func() {
-			It("returns the semver version", func() {
-				s.Body = "2.6.3"
+		Describe("when the object contains a bosh version greater than the cursor", func() {
+			It("returns the bosh version", func() {
+				s.Body = "2.6"
 
-				versions, err := driver.Check(&semver.Version{
+				versions, err := driver.Check(&version.BoshVersion{
 					Major: 1,
 				})
 
@@ -105,22 +88,20 @@ var _ = Describe("GCS Driver", func() {
 				Expect(s.ObjectName).To(Equal("fake-object"))
 
 				Expect(versions).To(HaveLen(1))
-				Expect(versions[0]).To(Equal(semver.Version{
+				Expect(versions[0]).To(Equal(version.BoshVersion{
 					Major: 2,
 					Minor: 6,
-					Patch: 3,
 				}))
 			})
 		})
 
-		Describe("when the object contains a semver version equal to the cursor", func() {
-			It("returns the semver version", func() {
-				s.Body = "2.6.3"
+		Describe("when the object contains a bosh version equal to the cursor", func() {
+			It("returns the bosh version", func() {
+				s.Body = "2.6"
 
-				versions, err := driver.Check(&semver.Version{
+				versions, err := driver.Check(&version.BoshVersion{
 					Major: 2,
 					Minor: 6,
-					Patch: 3,
 				})
 
 				Expect(err).NotTo(HaveOccurred())
@@ -128,19 +109,18 @@ var _ = Describe("GCS Driver", func() {
 				Expect(s.ObjectName).To(Equal("fake-object"))
 
 				Expect(versions).To(HaveLen(1))
-				Expect(versions[0]).To(Equal(semver.Version{
+				Expect(versions[0]).To(Equal(version.BoshVersion{
 					Major: 2,
 					Minor: 6,
-					Patch: 3,
 				}))
 			})
 		})
 
-		Describe("when the object contains a semver version less than the cursor", func() {
+		Describe("when the object contains a bosh version less than the cursor", func() {
 			It("returns no version", func() {
-				s.Body = "2.6.3"
+				s.Body = "2.6"
 
-				versions, err := driver.Check(&semver.Version{
+				versions, err := driver.Check(&version.BoshVersion{
 					Major: 8,
 				})
 
@@ -154,9 +134,9 @@ var _ = Describe("GCS Driver", func() {
 
 		Describe("when the object contains an invalid string", func() {
 			It("returns an error", func() {
-				s.Body = "I am not a semver version"
+				s.Body = "I am not a bosh version"
 
-				versions, err := driver.Check(&semver.Version{})
+				versions, err := driver.Check(&version.BoshVersion{})
 
 				Expect(versions).To(BeEmpty())
 				Expect(err).To(HaveOccurred())
@@ -168,10 +148,9 @@ var _ = Describe("GCS Driver", func() {
 			It("returns the initial version if the cursor does not exist", func() {
 				s.GetError = storage.ErrObjectNotExist
 
-				driver.InitialVersion = semver.Version{
+				driver.InitialVersion = version.BoshVersion{
 					Major: 3,
 					Minor: 4,
-					Patch: 5,
 				}
 
 				versions, err := driver.Check(nil)
@@ -183,9 +162,9 @@ var _ = Describe("GCS Driver", func() {
 
 			It("returns an empty list if the cursor is set", func() {
 				s.GetError = storage.ErrObjectNotExist
-				driver.InitialVersion = semver.Version{}
+				driver.InitialVersion = version.BoshVersion{}
 
-				versions, err := driver.Check(&semver.Version{Major: 3})
+				versions, err := driver.Check(&version.BoshVersion{Major: 3})
 
 				Expect(err).NotTo(HaveOccurred())
 				Expect(versions).To(BeEmpty())

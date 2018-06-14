@@ -5,9 +5,9 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/blang/semver"
 	"github.com/DennisDenuto/boshver-resource/driver"
 	"github.com/DennisDenuto/boshver-resource/models"
+	"github.com/DennisDenuto/boshver-resource/version"
 )
 
 func main() {
@@ -22,9 +22,9 @@ func main() {
 		fatal("constructing driver", err)
 	}
 
-	var cursor *semver.Version
+	var cursor *version.BoshVersion
 	if request.Version.Number != "" {
-		v, err := semver.Parse(request.Version.Number)
+		v, err := version.Parse(request.Version.Number)
 		if err != nil {
 			fmt.Fprintf(os.Stderr, "skipping invalid current version: %s", err)
 		} else {

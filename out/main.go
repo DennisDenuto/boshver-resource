@@ -6,7 +6,6 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/blang/semver"
 
 	"github.com/DennisDenuto/boshver-resource/driver"
 	"github.com/DennisDenuto/boshver-resource/models"
@@ -32,7 +31,7 @@ func main() {
 		fatal("constructing driver", err)
 	}
 
-	var newVersion semver.Version
+	var newVersion version.BoshVersion
 	if request.Params.File != "" {
 		versionFile, err := os.Open(filepath.Join(sources, request.Params.File))
 		if err != nil {
@@ -47,7 +46,7 @@ func main() {
 			fatal("reading version file", err)
 		}
 
-		newVersion, err = semver.Parse(versionStr)
+		newVersion, err = version.Parse(versionStr)
 		if err != nil {
 			fatal("parsing version", err)
 		}
