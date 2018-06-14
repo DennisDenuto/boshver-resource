@@ -101,8 +101,6 @@ func FromSource(source models.Source) (Driver, error) {
 			CommitMessage: source.CommitMessage,
 		}, nil
 
-	case models.DriverSwift:
-		return NewSwiftDriver(&source)
 
 	case models.DriverGCS:
 		servicer := &GCSIOServicer{

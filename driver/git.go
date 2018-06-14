@@ -27,7 +27,7 @@ func init() {
 }
 
 type GitDriver struct {
-	InitialVersion semver.Version
+	InitialVersion version.BoshVersion
 
 	URI           string
 	Branch        string
@@ -40,15 +40,15 @@ type GitDriver struct {
 	CommitMessage string
 }
 
-func (driver *GitDriver) Bump(bump version.Bump) (semver.Version, error) {
+func (driver *GitDriver) Bump(bump version.Bump) (version.BoshVersion, error) {
 	err := driver.setUpAuth()
 	if err != nil {
-		return semver.Version{}, err
+		return version.BoshVersion{}, err
 	}
 
 	err = driver.setUserInfo()
 	if err != nil {
-		return semver.Version{}, err
+		return version.BoshVersion{}, err
 	}
 
 	var newVersion semver.Version
@@ -56,12 +56,12 @@ func (driver *GitDriver) Bump(bump version.Bump) (semver.Version, error) {
 	for {
 		err = driver.setUpRepo()
 		if err != nil {
-			return semver.Version{}, err
+			return version.BoshVersion{}, err
 		}
 
 		currentVersion, exists, err := driver.readVersion()
 		if err != nil {
-			return semver.Version{}, err
+			return version.BoshVersion{}, err
 		}
 
 		if !exists {
@@ -133,7 +133,7 @@ func (driver *GitDriver) Check(cursor *semver.Version) ([]semver.Version, error)
 		return []semver.Version{currentVersion}, nil
 	}
 
-	return []semver.Version{}, nil
+	return []version.BoshVersion{}, nil
 }
 
 func (driver *GitDriver) setUpRepo() error {
@@ -265,27 +265,27 @@ func (driver *GitDriver) setUserInfo() error {
 	return nil
 }
 
-func (driver *GitDriver) readVersion() (semver.Version, bool, error) {
+func (driver *GitDriver) readVersion() (version.BoshVersion, bool, error) {
 	var currentVersionStr string
 	versionFile, err := os.Open(filepath.Join(gitRepoDir, driver.File))
 	if err != nil {
 		if os.IsNotExist(err) {
-			return semver.Version{}, false, nil
+			return version.BoshVersion{}, false, nil
 		}
 
-		return semver.Version{}, false, err
+		return version.BoshVersion{}, false, err
 	}
 
 	defer versionFile.Close()
 
 	_, err = fmt.Fscanf(versionFile, "%s", &currentVersionStr)
 	if err != nil {
-		return semver.Version{}, false, err
+		return version.BoshVersion{}, false, err
 	}
 
-	currentVersion, err := semver.Parse(currentVersionStr)
+	currentVersion, err := version.Parse(currentVersionStr)
 	if err != nil {
-		return semver.Version{}, false, err
+		return version.BoshVersion{}, false, err
 	}
 
 	return currentVersion, true, nil

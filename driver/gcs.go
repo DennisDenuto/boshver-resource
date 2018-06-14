@@ -9,40 +9,41 @@ import (
 	"os"
 
 	"cloud.google.com/go/storage"
-	"github.com/blang/semver"
 	"github.com/DennisDenuto/boshver-resource/version"
 	"google.golang.org/api/option"
 )
 
 type GCSDriver struct {
-	InitialVersion semver.Version
+
+
+	InitialVersion version.BoshVersion
 
 	Servicer   IOServicer
 	BucketName string
 	Key        string
 }
 
-func (d *GCSDriver) Bump(b version.Bump) (semver.Version, error) {
+func (d *GCSDriver) Bump(b version.Bump) (version.BoshVersion, error) {
 	versions, err := d.Check(nil)
 
 	if err != nil {
-		return semver.Version{}, err
+		return version.BoshVersion{}, err
 	}
 
 	if len(versions) == 0 {
-		return semver.Version{}, nil
+		return version.BoshVersion{}, nil
 	}
 
 	newVersion := b.Apply(versions[0])
 	err = d.Set(newVersion)
 
 	if err != nil {
-		return semver.Version{}, err
+		return version.BoshVersion{}, err
 	}
 	return newVersion, nil
 }
 
-func (d *GCSDriver) Set(v semver.Version) error {
+func (d *GCSDriver) Set(v version.BoshVersion) error {
 	w, err := d.Servicer.PutObject(d.BucketName, d.Key)
 	if err != nil {
 		return err
@@ -52,15 +53,15 @@ func (d *GCSDriver) Set(v semver.Version) error {
 	return err
 }
 
-func (d *GCSDriver) Check(cursor *semver.Version) ([]semver.Version, error) {
+func (d *GCSDriver) Check(cursor *version.BoshVersion) ([]version.BoshVersion, error) {
 	r, err := d.Servicer.GetObject(d.BucketName, d.Key)
 
 	switch err {
 	case storage.ErrObjectNotExist:
 		if cursor == nil {
-			return []semver.Version{d.InitialVersion}, nil
+			return []version.BoshVersion{d.InitialVersion}, nil
 		}
-		return []semver.Version{}, nil
+		return []version.BoshVersion{}, nil
 	case nil:
 	default:
 		return nil, err
@@ -72,13 +73,13 @@ func (d *GCSDriver) Check(cursor *semver.Version) ([]semver.Version, error) {
 		return nil, err
 	}
 
-	v, err := semver.Parse(string(b))
+	v, err := version.Parse(string(b))
 	if err != nil {
 		return nil, fmt.Errorf("parsing number in bucket: %s", err)
 	}
 
-	if cursor == nil || v.GTE(*cursor) {
-		return []semver.Version{v}, nil
+	if cursor == nil || v.Compare(*cursor) > 0 {
+		return []version.BoshVersion{v}, nil
 	}
 
 	return nil, nil
