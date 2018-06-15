@@ -96,15 +96,15 @@ it_can_check_from_a_version() {
     ]
   "
 
-  check_uri_from $repo 1.2 | jq -e "
+  check_uri_from $repo 1.3 | jq -e "
     . == []
   "
 
-  set_version $repo 1.2
+  set_version $repo 1.4
 
-  check_uri_from $repo 1.2 | jq -e "
+  check_uri_from $repo 1.3 | jq -e "
     . == [
-      {number: $(echo 1.2 | jq -R .)}
+      {number: $(echo 1.4 | jq -R .)}
     ]
   "
 
