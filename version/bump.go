@@ -79,10 +79,10 @@ func Parse(s string) (BoshVersion, error) {
 		return BoshVersion{}, errors.New("Version string empty")
 	}
 
-	// Split into major.minor.(patch+pr+meta)
-	parts := strings.SplitN(s, ".", 3)
-	if len(parts) != 3 {
-		return BoshVersion{}, errors.New("No Major.Minor.Patch elements found")
+	// Split into major.minor
+	parts := strings.SplitN(s, ".", 2)
+	if len(parts) != 2 {
+		return BoshVersion{}, errors.New("No Major.Minor elements found")
 	}
 
 	// Major

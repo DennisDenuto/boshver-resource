@@ -81,7 +81,7 @@ func Parse(s string) (version.BoshVersion, error) {
 
 	// Split into major.minor
 	parts := strings.SplitN(s, ".", 2)
-	if len(parts) != 3 {
+	if len(parts) != 2 {
 		return version.BoshVersion{}, errors.New("No Major.Minor elements found")
 	}
 

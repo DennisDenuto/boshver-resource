@@ -8,32 +8,32 @@ it_can_check_with_no_current_version() {
   local repo=$(init_repo)
 
   check_uri $repo | jq -e "
-    . == [{number: $(echo 0.0.0 | jq -R .)}]
+    . == [{number: $(echo 0.0 | jq -R .)}]
   "
 }
 
 it_can_check_with_no_current_version_with_initial_set() {
   local repo=$(init_repo)
 
-  check_uri_with_initial $repo 0.1.2 | jq -e "
-    . == [{number: $(echo 0.1.2 | jq -R .)}]
+  check_uri_with_initial $repo 0.1 | jq -e "
+    . == [{number: $(echo 0.1 | jq -R .)}]
   "
 }
 
 it_can_check_with_current_version() {
   local repo=$(init_repo)
 
-  set_version $repo 1.2.3
+  set_version $repo 1.2
 
   check_uri $repo | jq -e "
-    . == [{number: $(echo 1.2.3 | jq -R .)}]
+    . == [{number: $(echo 1.2 | jq -R .)}]
   "
 }
 
 it_fails_if_key_has_password() {
   local repo=$(init_repo)
 
-  set_version $repo 1.2.3
+  set_version $repo 1.2
 
   local key=$TMPDIR/key-with-passphrase
   ssh-keygen -f $key -N some-passphrase
@@ -50,10 +50,10 @@ it_fails_if_key_has_password() {
 it_can_check_with_credentials() {
   local repo=$(init_repo)
 
-  set_version $repo 1.2.3
+  set_version $repo 1.2
 
   check_uri_with_credentials $repo "user1" "pass1" | jq -e "
-    . == [{number: $(echo 1.2.3 | jq -R .)}]
+    . == [{number: $(echo 1.2 | jq -R .)}]
   "
 
   local expected_netrc="default login user1 password pass1"
@@ -61,7 +61,7 @@ it_can_check_with_credentials() {
 
   # make sure it clears out .netrc for this request without credentials
   check_uri_with_credentials $repo "" "" | jq -e "
-    . == [{number: $(echo 1.2.3 | jq -R .)}]
+    . == [{number: $(echo 1.2 | jq -R .)}]
   "
   [ ! -f "$HOME/.netrc" ]
 }
@@ -69,7 +69,7 @@ it_can_check_with_credentials() {
 it_clears_netrc_even_after_errors() {
   local repo=$(init_repo)
 
-  set_version $repo 1.2.3
+  set_version $repo 1.2
 
   if check_uri_with_credentials "non_existent_repo" "user1" "pass1" ; then
     exit 1
@@ -88,31 +88,31 @@ it_clears_netrc_even_after_errors() {
 it_can_check_from_a_version() {
   local repo=$(init_repo)
 
-  set_version $repo 1.2.3
+  set_version $repo 1.2
 
-  check_uri_from $repo 1.2.3 | jq -e "
+  check_uri_from $repo 1.2 | jq -e "
     . == [
-      {number: $(echo 1.2.3 | jq -R .)}
+      {number: $(echo 1.2 | jq -R .)}
     ]
   "
 
-  check_uri_from $repo 1.2.4 | jq -e "
+  check_uri_from $repo 1.2 | jq -e "
     . == []
   "
 
-  set_version $repo 1.2.5
+  set_version $repo 1.2
 
-  check_uri_from $repo 1.2.4 | jq -e "
+  check_uri_from $repo 1.2 | jq -e "
     . == [
-      {number: $(echo 1.2.5 | jq -R .)}
+      {number: $(echo 1.2 | jq -R .)}
     ]
   "
 
-  set_version $repo 2.0.0
+  set_version $repo 2.0
 
-  check_uri_from $repo 1.2.4 | jq -e "
+  check_uri_from $repo 1.2 | jq -e "
     . == [
-      {number: $(echo 2.0.0 | jq -R .)}
+      {number: $(echo 2.0 | jq -R .)}
     ]
   "
 }

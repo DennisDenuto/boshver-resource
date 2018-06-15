@@ -156,8 +156,8 @@ var _ = Describe("Out", func() {
 			})
 
 			for bump, result := range map[string]string{
-				"minor": "1.3.0",
-				"major": "2.0.0",
+				"minor": "1.3",
+				"major": "2.0",
 			} {
 				bumpLocal := bump
 				resultLocal := result
