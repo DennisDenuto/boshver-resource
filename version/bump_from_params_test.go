@@ -14,7 +14,6 @@ var _ = Describe("BumpForParams", func() {
 		version BoshVersion
 
 		bumpParam string
-		preParam  string
 	)
 
 	BeforeEach(func() {
@@ -24,7 +23,6 @@ var _ = Describe("BumpForParams", func() {
 		}
 
 		bumpParam = ""
-		preParam = ""
 	})
 
 	JustBeforeEach(func() {

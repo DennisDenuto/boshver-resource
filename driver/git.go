@@ -200,7 +200,7 @@ func (driver *GitDriver) setUpAuth() error {
 }
 
 func (driver *GitDriver) setUpKey() error {
-	if strings.Contains(driver.PrivateKey, "ENCRYPTED") {
+	if isPrivateKeyEncrypted() {
 		return ErrEncryptedKey
 	}
 
@@ -217,6 +217,14 @@ func (driver *GitDriver) setUpKey() error {
 	}
 
 	return os.Setenv("GIT_SSH_COMMAND", "ssh -o StrictHostKeyChecking=no -i "+privateKeyPath)
+}
+
+func isPrivateKeyEncrypted() bool {
+	passphrase := ``
+	cmd := exec.Command(`ssh-keygen`, `-y`, `-f`, privateKeyPath, `-P`, passphrase)
+	err := cmd.Run()
+
+	return err != nil
 }
 
 func (driver *GitDriver) setUpUsernamePassword() error {
